@@ -1,0 +1,34 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8501:8501" # Map to Traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.app.rule=Host(`pp.taufiqdp.com`)" # Replace with your domain
+      - "traefik.http.services.app.loadbalancer.server.port=8501" # Internal port
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  traefik:
+    image: "traefik:v3.2.1"
+    command:
+      - "--api.insecure=true" # Enables Traefik dashboard (optional; remove for production)
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80" # Default HTTP port
+      - "--entrypoints.websecure.address=:443" # Default HTTPS port
+      - "--certificatesresolvers.myresolver.acme.httpchallenge=true" # Let's Encrypt HTTP challenge
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.myresolver.acme.email=topexdw@gmail.com" # Replace with your email
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./letsencrypt:/letsencrypt" # Store SSL certificates
