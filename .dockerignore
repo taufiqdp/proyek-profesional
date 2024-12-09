@@ -1,0 +1,20 @@
+# Start Generation Here
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+*.whl
+*.db
+*.sqlite3
+*.log
+*.env
+*.venv
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+# Ignore Docker-related files
+Dockerfile
+docker-compose.yml
+# End Generation Here
