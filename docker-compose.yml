@@ -4,18 +4,18 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8501:8501" # Map to Traefik
+      - "8501:8501"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.app.rule=Host(`sentiment.taufiqdp.com`)" # Replace with your domain
+      - "traefik.http.routers.app.rule=Host(`sentiment.taufiqdp.com`)"
       - "traefik.http.routers.whoami.entrypoints=web"
 
   traefik:
     image: "traefik:v3.2.1"
     command:
-      - "--api.insecure=true" # Enables Traefik dashboard (optional; remove for production)
+      - "--api.insecure=false"
       - "--providers.docker=true"
-      - "--entrypoints.web.address=:80" # Default HTTP port
+      - "--entrypoints.web.address=:80"
       - "--providers.docker.exposedbydefault=false"
     ports:
       - "80:80"
