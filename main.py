@@ -88,7 +88,7 @@ def load_data(uploaded_file):
 
             # Perform sentiment analysis and extract labels
             sentiments = model(
-                df["full_text"].tolist(), truncation=True, padding=True, batch_size=64
+                df["full_text"].tolist(), truncation=True, padding=True, batch_size=32
             )
             df["sentiment"] = [s["label"] for s in sentiments]
 
