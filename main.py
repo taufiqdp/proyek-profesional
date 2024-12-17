@@ -61,7 +61,7 @@ with st.spinner("Memuat model..."):
 def clean_text(text):
     text = re.sub(r"http\S+|www\S+|https\S+", "", text, flags=re.MULTILINE)
     text = " ".join(text.split())
-    return text
+    return text.lower()
 
 
 # Function to load data from CSV
@@ -88,7 +88,7 @@ def load_data(uploaded_file):
 
             # Perform sentiment analysis and extract labels
             sentiments = model(
-                df["full_text"].tolist(), truncation=True, padding=True, batch_size=32
+                df["full_text"].tolist(), truncation=True, padding=True, batch_size=16
             )
             df["sentiment"] = [s["label"] for s in sentiments]
 
@@ -233,6 +233,10 @@ if df is not None:
 
 # About
 st.sidebar.markdown("---")
+
+# Select model
+model_options = ["NusaBERT-base", "NusaBERT-large", "bert-base-multilingual-uncased", "indobert-base-p1", "indobert-base-uncased", "indobert-large-p1", "indobert-lite-base-p1", "indobert-lite-large-p1"]
+st.sidebar.selectbox("Pilih model", model_options)
 
 # Instructions for CSV format
 st.sidebar.subheader("Format CSV")
