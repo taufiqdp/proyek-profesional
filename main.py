@@ -1,13 +1,14 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 from transformers import pipeline
-import io
 import re
+from huggingface_hub import login
 
+# Login to Hugging Face
+login("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")
 
 # Set page configuration
 st.set_page_config(page_title="Analisis Sentimen IKN", layout="wide", page_icon="📊")
@@ -47,6 +48,25 @@ hide_streamlit_style = """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 
+# About
+st.sidebar.markdown("---")
+
+
+MODEL_PATHS = {
+    "NusaBERT-base": "runs/NusaBERT-base",
+    "NusaBERT-large": "runs/NusaBERT-large",
+    "bert-base-multilingual-uncased": "runs/bert-base-multilingual-uncased",
+    "indobert-base-p1": "runs/indobert-base-p1",
+    "indobert-base-uncased": "runs/indobert-base-uncased",
+    "indobert-large-p1": "runs/indobert-large-p1",
+    "indobert-lite-base-p1": "runs/indobert-lite-base-p1",
+    "indobert-lite-large-p1": "runs/indobert-lite-large-p1"
+}
+
+# Select model
+model_name = st.sidebar.selectbox("Pilih model", list(MODEL_PATHS.keys()))
+
+
 # Function to load huggingface model
 @st.cache_resource(show_spinner=False)
 def load_model(model_name):
@@ -55,7 +75,7 @@ def load_model(model_name):
 
 # Load sentiment analysis model
 with st.spinner("Memuat model..."):
-    model = load_model("taufiqdp/indonesian-sentiment")
+    model = load_model(MODEL_PATHS[model_name])
 
 
 def clean_text(text):
@@ -64,9 +84,9 @@ def clean_text(text):
     return text.lower()
 
 
-# Function to load data from CSV
+# Function to load data from CSV and run model
 @st.cache_data(show_spinner=False)
-def load_data(uploaded_file):
+def load_and_analyze_data(uploaded_file, _model_name):
     if uploaded_file is not None:
         try:
             df = pd.read_csv(uploaded_file)
@@ -99,16 +119,16 @@ def load_data(uploaded_file):
     else:
         return None
 
-
 # Title
 st.title("Analisis Sentimen Ibu Kota Nusantara (IKN)")
 
 # File uploader
 uploaded_file = st.file_uploader("Unggah file CSV", type="csv")
 
-# Load data
-with st.spinner("Memuat data..."):
-    df = load_data(uploaded_file)
+# Load data and run model with caching
+with st.spinner("Memuat dan menganalisis data..."):
+    df = load_and_analyze_data(uploaded_file, model_name)
+
 
 if df is not None:
     # Create tabs
@@ -230,13 +250,6 @@ if df is not None:
             mime="text/csv",
         )
 
-
-# About
-st.sidebar.markdown("---")
-
-# Select model
-model_options = ["NusaBERT-base", "NusaBERT-large", "bert-base-multilingual-uncased", "indobert-base-p1", "indobert-base-uncased", "indobert-large-p1", "indobert-lite-base-p1", "indobert-lite-large-p1"]
-st.sidebar.selectbox("Pilih model", model_options)
 
 # Instructions for CSV format
 st.sidebar.subheader("Format CSV")
